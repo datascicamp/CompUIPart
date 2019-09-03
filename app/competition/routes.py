@@ -16,6 +16,43 @@ def competition_inserting_view():
     return render_template('competition/compInsert.html', form=form)
 
 
+# competition inserting function
+@bp.route('/competition-inserting', methods=['POST'])
+def competition_inserting_function():
+    form = CompetitionInsertForm()
+    if form.validate_on_submit():
+        insert_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+            '/api/competition'
+        new_competition = dict()
+
+        new_competition['comp_title'] = form.comp_title.data
+        new_competition['comp_subtitle'] = form.comp_subtitle.data
+        new_competition['comp_range'] = form.comp_range.data
+        new_competition['comp_url'] = form.comp_url.data
+        new_competition['prize_currency'] = form.prize_currency.data
+        new_competition['prize_amount'] = form.prize_amount.data
+        new_competition['deadline'] = form.deadline.data
+        new_competition['timezone'] = form.timezone.data
+        new_competition['update_time'] = get_current_datetime()
+        new_competition['publish_time'] = get_current_datetime()
+        new_competition['contributor_id'] = '233'
+
+        new_competition['comp_description'] = form.comp_description.data
+        host_list = [{'comp_host_name': form.comp_host_name.data, 'comp_host_url': form.comp_host_url.data}]
+        new_competition['comp_host'] = str(host_list)
+
+        comp_scenario_list = [str(form.comp_scenario.data)]
+        new_competition['comp_scenario'] = str(comp_scenario_list)
+        data_feature = [str(form.data_feature.data)]
+        new_competition['data_feature'] = str(data_feature)
+
+        result = requests.post(insert_url, data=new_competition)
+        if result.status_code == 200:
+            competition = get_api_info(result)[0]
+            comp_record_hash = competition['comp_record_hash']
+            return redirect(url_for('competition-operator.competition_detail_view', comp_record_hash=comp_record_hash))
+
+
 # my competition list
 @bp.route('/competition-list/<string:user_id>', methods=['GET'])
 def competition_list_view(user_id):
@@ -24,7 +61,18 @@ def competition_list_view(user_id):
     result = requests.get(own_competition_url)
     if result.status_code == 200:
         owner_comps_list = get_api_info(result)
-        return render_template('competition/compOpers.html', comp_list=owner_comps_list)
+        return render_template('competition/compMenu.html', comp_list=owner_comps_list)
+
+
+# competition detail view
+@bp.route('/competition-detail/<string:comp_record_hash>', methods=['GET'])
+def competition_detail_view(comp_record_hash):
+    comp_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+               '/api/competition/competition-record-hash/' + str(comp_record_hash)
+    result = requests.get(comp_url)
+    if result.status_code == 200:
+        competition = get_api_info(result)[0]
+        return render_template('competition/compView.html', competition=competition)
 
 
 # competition update page
@@ -90,7 +138,8 @@ def competition_updating_function(comp_record_hash):
             result = requests.put(update_url, data=mod_competition)
             if result.status_code == 200:
                 user_id = get_api_info(result)[0]['contributor_id']
-                return redirect(url_for('competition-operator.competition_list_view', user_id=user_id))
+                return redirect(url_for('competition-operator.competition_detail_view',
+                                        comp_record_hash=mod_competition['comp_record_hash']))
 
             print(result.status_code)
 

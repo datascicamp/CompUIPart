@@ -8,7 +8,9 @@
 
         <h1>My Publishing Competitions</h1>
         <br>
-
+        <a href="{{ url_for('competition-operator.competition_inserting_view')  }}" class="btn btn-default" role="button">Upload New Competition!</a>
+        <br>
+        <br>
         <!-- 已发表的言论 -->
         {% if comp_list %}
             {% for comp in comp_list %}
@@ -21,7 +23,10 @@
                         <b>Last Update Time:   </b> {{ comp.update_time }}
                     </div>
                     <div class="panel-footer">
-                        <b>Operations:   </b> Modify
+                        <b>Operations:   </b>
+                        <a href="{{ url_for('competition-operator.competition_detail_view', comp_record_hash=comp.comp_record_hash) }}"> View </a>
+                        |
+                        <a href="{{ url_for('competition-operator.competition_updating_view', comp_record_hash=comp.comp_record_hash) }}"> Modify </a>
                     </div>
                 </div>
             </div>

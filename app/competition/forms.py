@@ -16,8 +16,8 @@ class CompetitionInsertForm(FlaskForm):
     prize_amount = StringField('Prize')
     deadline = StringField('Competition Deadline', validators=[DataRequired()])
     timezone = StringField('Timezone', validators=[DataRequired()])
-    comp_scenario = StringField('Competition Scenario')
-    data_feature = StringField('Data Feature')
+    comp_scenario = StringField('Competition Scenario', validators=[DataRequired()])
+    data_feature = StringField('Data Feature', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -34,6 +34,6 @@ class CompetitionUpdateForm(FlaskForm):
     prize_amount = StringField('Prize')
     deadline = StringField('Competition Deadline', validators=[DataRequired()])
     timezone = StringField('Timezone', validators=[DataRequired()])
-    comp_scenario = StringField('Competition Scenario')
-    data_feature = StringField('Data Feature')
+    comp_scenario = StringField('Competition Scenario', validators=[DataRequired()])
+    data_feature = StringField('Data Feature', validators=[DataRequired()])
     submit = SubmitField('Submit')
