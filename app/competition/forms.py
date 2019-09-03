@@ -37,3 +37,8 @@ class CompetitionUpdateForm(FlaskForm):
     comp_scenario = StringField('Competition Scenario', validators=[DataRequired()])
     data_feature = StringField('Data Feature', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+# Competition Deleting Form
+class CompetitionDeleteForm(FlaskForm):
+    verification = SubmitField("DELETE Anyway")

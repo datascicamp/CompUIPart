@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, url_for, redirect, jsonify
-from app.competition.forms import CompetitionInsertForm, CompetitionUpdateForm
+from app.competition.forms import CompetitionInsertForm, CompetitionUpdateForm, CompetitionDeleteForm
 from werkzeug.http import HTTP_STATUS_CODES
 from func_pack import get_api_info, get_current_datetime
 from config import Config
@@ -56,6 +56,7 @@ def competition_inserting_function():
 # my competition list
 @bp.route('/competition-list/<string:user_id>', methods=['GET'])
 def competition_list_view(user_id):
+    # ToDo: Auth recognization
     own_competition_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
                           '/api/competition/contributor-id/' + str(user_id)
     result = requests.get(own_competition_url)
@@ -78,6 +79,7 @@ def competition_detail_view(comp_record_hash):
 # competition update page
 @bp.route('/competition-updating/<string:comp_record_hash>', methods=['GET'])
 def competition_updating_view(comp_record_hash):
+    # ToDo: Auth recognization
     comp_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
                '/api/competition/competition-record-hash/' + str(comp_record_hash)
     result = requests.get(comp_url)
@@ -104,6 +106,7 @@ def competition_updating_view(comp_record_hash):
 @bp.route('/competition-updating/<string:comp_record_hash>', methods=['POST'])
 def competition_updating_function(comp_record_hash):
     form = CompetitionUpdateForm()
+    # ToDo: Auth recognization
     if form.validate_on_submit():
         # Get competition info
         comp_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
@@ -141,7 +144,45 @@ def competition_updating_function(comp_record_hash):
                 return redirect(url_for('competition-operator.competition_detail_view',
                                         comp_record_hash=mod_competition['comp_record_hash']))
 
-            print(result.status_code)
+
+# competition delete view
+@bp.route('/competition-deleting/<string:comp_record_hash>', methods=['GET', 'POST'])
+def competition_delete_confirm(comp_record_hash):
+    form = CompetitionDeleteForm()
+    # Get competition info
+    comp_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+               '/api/competition/competition-record-hash/' + str(comp_record_hash)
+    result = requests.get(comp_url)
+    # Functional Part
+    if form.validate_on_submit():
+        if result.status_code == 200:
+            # ToDo: Auth recognization
+            user_id = get_api_info(result)[0]['contributor_id']
+            delete_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+                         '/api/competition/competition-record-hash/' + str(comp_record_hash)
+            requests.delete(delete_url)
+            return redirect(url_for('competition-operator.competition_list_view', user_id=user_id))
+    # View Part
+    else:
+        if result.status_code == 200:
+            # ToDo: Auth recognization
+            competition = get_api_info(result)[0]
+            return render_template('competition/compDelete.html', form=form, competition=competition)
+
+
+# # competition delete function
+# @bp.route('/competition-deleting/<string:comp_record_hash>', methods=['DELETE'])
+# def competition_deleting_function(comp_record_hash):
+#     comp_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+#                '/api/competition/competition-record-hash/' + str(comp_record_hash)
+#     result = requests.get(comp_url)
+#     if result.status_code == 200:
+#         user_id = get_api_info(result)[0]
+#         delete_url = 'http://' + Config.COMPETITION_SERVICE_URL + \
+#             '/api/competition/competition-record-hash/' + str(comp_record_hash)
+#         result = requests.delete(delete_url)
+#         if result == 200:
+#             return redirect(url_for('competition-operator.competition_list_view', user_id=user_id))
 
 
 # bad requests holder

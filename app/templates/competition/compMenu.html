@@ -27,6 +27,8 @@
                         <a href="{{ url_for('competition-operator.competition_detail_view', comp_record_hash=comp.comp_record_hash) }}"> View </a>
                         |
                         <a href="{{ url_for('competition-operator.competition_updating_view', comp_record_hash=comp.comp_record_hash) }}"> Modify </a>
+                        |
+                        <a href="{{ url_for('competition-operator.competition_delete_confirm', comp_record_hash=comp.comp_record_hash) }}"> Delete </a>
                     </div>
                 </div>
             </div>
